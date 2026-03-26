@@ -1,0 +1,10 @@
+[Unit]
+Description=Demo monitoring service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/free -h
+
+[Install]
+WantedBy=multi-user.target

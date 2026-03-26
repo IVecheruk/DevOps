@@ -1,0 +1,2 @@
+# Allow jarservice to run the id command as root without a password.
+jarservice ALL=(root) NOPASSWD: /usr/bin/id
