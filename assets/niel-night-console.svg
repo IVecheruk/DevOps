@@ -1,0 +1,66 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg {
+        fill: #000000;
+      }
+
+      .ascii {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+        font-size: 26px;
+        font-weight: 700;
+        white-space: pre;
+        fill: #ffffff;
+      }
+
+      .prompt {
+        font-family: Consolas, Monaco, "Courier New", monospace;
+        font-size: 18px;
+        fill: #8b949e;
+        white-space: pre;
+      }
+
+      .cursor {
+        fill: #ffffff;
+        animation: blink 1s steps(1) infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
+
+    <clipPath id="reveal">
+      <rect x="70" y="70" width="0" height="190">
+        <animate attributeName="width"
+                 values="0;0;1020;1020"
+                 keyTimes="0;0.12;0.7;1"
+                 dur="3.8s"
+                 repeatCount="indefinite"/>
+      </rect>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="320" rx="0" class="bg"/>
+
+  <text x="70" y="42" class="prompt">$ ./render_signature --name "Niel Night"</text>
+
+  <g clip-path="url(#reveal)">
+    <text x="70" y="95" class="ascii">███╗   ██╗██╗███████╗██╗         ███╗   ██╗██╗ ██████╗ ██╗  ██╗████████╗</text>
+    <text x="70" y="130" class="ascii">████╗  ██║██║██╔════╝██║         ████╗  ██║██║██╔════╝ ██║  ██║╚══██╔══╝</text>
+    <text x="70" y="165" class="ascii">██╔██╗ ██║██║█████╗  ██║         ██╔██╗ ██║██║██║  ███╗███████║   ██║   </text>
+    <text x="70" y="200" class="ascii">██║╚██╗██║██║██╔══╝  ██║         ██║╚██╗██║██║██║   ██║██╔══██║   ██║   </text>
+    <text x="70" y="235" class="ascii">██║ ╚████║██║███████╗███████╗    ██║ ╚████║██║╚██████╔╝██║  ██║   ██║   </text>
+    <text x="70" y="270" class="ascii">╚═╝  ╚═══╝╚═╝╚══════╝╚══════╝    ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   </text>
+  </g>
+
+  <rect x="70" y="72" width="12" height="205" class="cursor">
+    <animate attributeName="x"
+             values="70;70;1090;1090"
+             keyTimes="0;0.12;0.7;1"
+             dur="3.8s"
+             repeatCount="indefinite"/>
+  </rect>
+</svg>

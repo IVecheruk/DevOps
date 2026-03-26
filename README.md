@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/devops-labs-banner.svg" alt="DevOps Linux Labs" />
+  <img src="./assets/niel-night-console.svg" alt="Niel Night" />
 </p>
 
 # Лабораторные работы по DevOps и Linux
