@@ -1,3 +1,0 @@
-# Optional: only needed for --telegram.
-requests>=2.32.5,<3.0
-
