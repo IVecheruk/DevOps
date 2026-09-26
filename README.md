@@ -6,6 +6,8 @@
 
 Этот README — отчёт по работе. GitHub отображает его как страницу при открытии репозитория; отдельный сайт GitHub Pages не требуется.
 
+**Репозиторий для сдачи:** [IVecheruk/devops-python-lab-2-1](https://github.com/IVecheruk/devops-python-lab-2-1).
+
 ## 1. Цель работы
 
 Изучить автоматизацию анализа журнала веб-сервера: подсчёт ответов HTTP 404 по IP-адресам, выявление превышения порога и формирование предупреждений. Подготовить воспроизводимый вариант скрипта, который запускается после клонирования репозитория без работающего Nginx и Telegram-бота.
@@ -107,10 +109,10 @@ f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
 ### 3.3. Клонирование и локальный запуск
 
-Вместо `YOUR_USERNAME/YOUR_REPOSITORY` подставьте владельца и название опубликованного репозитория. Адрес можно скопировать на GitHub через **Code → HTTPS**.
+Выполните команды в терминале. Репозиторий публичный; для клонирования авторизация GitHub не требуется.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git nginx-log-lab
+git clone https://github.com/IVecheruk/devops-python-lab-2-1.git nginx-log-lab
 cd nginx-log-lab
 python --version
 python analyze_logs.py
@@ -226,33 +228,24 @@ export CHAT_ID="ВАШ_CHAT_ID"
 
 ## 5. Использование Git и публикация отчёта
 
-Материалы работы подготовлены для хранения в Git: код, учебный лог, тесты и этот Markdown-отчёт. Для просмотра истории после клонирования:
+Материалы работы сохранены в Git и опубликованы в публичном репозитории [IVecheruk/devops-python-lab-2-1](https://github.com/IVecheruk/devops-python-lab-2-1), ветка `main`. В репозитории находятся код, учебный лог, тесты и этот Markdown-отчёт.
+
+Первый коммит лабораторной — `eb78379` (`Add reproducible Python log analysis lab`). Для просмотра истории и подключения к удалённому репозиторию после клонирования:
 
 ```bash
 git log --oneline
 git status
+git remote -v
 ```
 
-Для публикации своего локального репозитория создайте на GitHub пустой репозиторий без автоматически добавляемых файлов. Если материалы ещё не сохранены в истории Git, выполните:
+При публикации локальный репозиторий подключён к GitHub и отправлен командой `git push`:
 
 ```bash
-git init
-git add README.md analyze_logs.py requirements.txt .gitignore examples/access.log tests/test_analyze_logs.py
-git commit -m "Add Python log analysis lab"
-```
-
-Если Git запросит сведения об авторе, задайте свои значения через `git config user.name "Ваше имя"` и `git config user.email "Ваш email"`, затем повторите коммит.
-
-Подключите свой репозиторий и отправьте текущую ветку как `main`:
-
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+git remote add origin https://github.com/IVecheruk/devops-python-lab-2-1.git
 git push -u origin HEAD:main
 ```
 
-Если `origin` уже существует, проверьте его командой `git remote -v`; для замены адреса используйте `git remote set-url origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git`.
-
-Для сдачи предоставляется ссылка `https://github.com/YOUR_USERNAME/YOUR_REPOSITORY`. Проверяющий сможет прочитать отчёт на главной странице и повторить команды из раздела 3.3. На момент подготовки отчёта удалённый репозиторий не настроен; публикацию нужно выполнить с собственной учётной записью.
+Повторять команды публикации для выполнения лабораторной не нужно. Проверяющий может прочитать отчёт на главной странице репозитория и повторить команды из раздела 3.3.
 
 ## 6. Выводы
 
