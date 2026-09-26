@@ -6,5 +6,4 @@ __pycache__/
 .env
 .env.*
 *.log
-!examples/access.log
-
+!labs/lab-2.1/examples/access.log
