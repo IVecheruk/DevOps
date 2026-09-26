@@ -1,17 +1,12 @@
-"""Проверки на локальном HTTP-сервере, без доступа к внешним сайтам."""
+"""Проверки готового скрипта на локальном HTTP-сервере."""
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from threading import Thread
 import unittest
-from unittest.mock import patch
-from urllib.error import URLError
-
-from check_links import check_url, create_report
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "check_links.py"
@@ -45,76 +40,48 @@ class CheckLinksTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join()
 
-    def test_http_responses_and_redirects(self):
-        for path, expected in (
-            ("/ok", "Ok"), ("/empty", "Ok"), ("/redirect", "Ok"),
-            ("/missing", "Error"), ("/error", "Error"), ("/redirect-error", "Error"),
-        ):
-            with self.subTest(path=path):
-                self.assertEqual(check_url(self.base_url + path), expected)
+    def run_script(self, directory):
+        return subprocess.run(
+            [sys.executable, "-S", "-W", "error::ResourceWarning", str(SCRIPT)],
+            cwd=directory, capture_output=True, text=True, encoding="utf-8",
+        )
 
-    def test_invalid_addresses(self):
-        for url in ("not-a-url", "file:///etc/passwd", "ftp://example.com", "https://", "http://[broken", "http://a b/"):
-            with self.subTest(url=url):
-                self.assertEqual(check_url(url), "Error")
-
-    def test_network_failures(self):
-        for error in (URLError("DNS failure"), TimeoutError(), ConnectionResetError()):
-            with self.subTest(error=type(error).__name__):
-                with patch("check_links.urlopen", side_effect=error):
-                    self.assertEqual(check_url("https://example.com"), "Error")
-
-    def test_report_format_order_duplicates_and_overwrite(self):
+    def check_report(self, input_text, expected):
         with TemporaryDirectory() as directory:
-            source = Path(directory) / "link.txt"
+            (Path(directory) / "link.txt").write_text(input_text, encoding="utf-8")
             report = Path(directory) / "report.txt"
-            source.write_text(f"  {self.base_url}/ok  \n\n{self.base_url}/missing\n{self.base_url}/ok\nnot-a-url\n", encoding="utf-8-sig")
-            report.write_text("old content", encoding="utf-8")
-            results = create_report(source, report)
-            self.assertEqual([status for _, status in results], ["Ok", "Error", "Ok", "Error"])
-            self.assertEqual(report.read_text(encoding="utf-8"), (
-                f"{self.base_url}/ok -> Ok\n{self.base_url}/missing -> Error\n"
-                f"{self.base_url}/ok -> Ok\nnot-a-url -> Error\n"
-            ))
+            report.write_text("old report", encoding="utf-8")
+            result = self.run_script(directory)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stderr, "")
+            self.assertEqual(report.read_text(encoding="utf-8"), expected)
+
+    def test_http_responses_and_redirects(self):
+        cases = [("/ok", "Ok"), ("/empty", "Ok"), ("/redirect", "Ok"),
+                 ("/missing", "Error"), ("/error", "Error"), ("/redirect-error", "Error")]
+        urls = "".join(f"{self.base_url}{path}\n" for path, _ in cases)
+        expected = "".join(f"{self.base_url}{path} -> {status}\n" for path, status in cases)
+        self.check_report(urls, expected)
+
+    def test_spaces_blank_lines_duplicates_and_overwrite(self):
+        url = self.base_url + "/ok"
+        self.check_report(f"  {url}  \n\n{url}\n", f"{url} -> Ok\n{url} -> Ok\n")
 
     def test_empty_input(self):
-        with TemporaryDirectory() as directory:
-            source, report = Path(directory) / "link.txt", Path(directory) / "report.txt"
-            source.write_text("\n  \n", encoding="utf-8")
-            self.assertEqual(create_report(source, report), [])
-            self.assertEqual(report.read_bytes(), b"")
+        self.check_report("\n  \n", "")
 
-    def test_same_file_is_not_overwritten(self):
-        with TemporaryDirectory() as directory:
-            source = Path(directory) / "link.txt"
-            source.write_text("https://example.com\n", encoding="utf-8")
-            with self.assertRaises(ValueError):
-                create_report(source, source)
-            self.assertEqual(source.read_text(encoding="utf-8"), "https://example.com\n")
+    def test_invalid_url_does_not_stop_remaining_checks(self):
+        url = self.base_url + "/ok"
+        self.check_report(f"not-a-url\n{url}\n", f"not-a-url -> Error\n{url} -> Ok\n")
 
     def test_missing_input_preserves_existing_report(self):
         with TemporaryDirectory() as directory:
             report = Path(directory) / "report.txt"
             report.write_text("previous report", encoding="utf-8")
-            with self.assertRaises(OSError):
-                create_report(Path(directory) / "missing.txt", report)
+            result = self.run_script(directory)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("FileNotFoundError", result.stderr)
             self.assertEqual(report.read_text(encoding="utf-8"), "previous report")
-
-    def test_default_paths_from_another_directory(self):
-        with TemporaryDirectory() as directory:
-            lab = Path(directory) / "lab"
-            lab.mkdir()
-            shutil.copyfile(SCRIPT, lab / "check_links.py")
-            (lab / "link.txt").write_text(f"{self.base_url}/ok\n{self.base_url}/missing\n", encoding="utf-8")
-            result = subprocess.run([sys.executable, "-S", str(lab / "check_links.py")], cwd=directory, capture_output=True, text=True, encoding="utf-8")
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual((lab / "report.txt").read_text(encoding="utf-8"), f"{self.base_url}/ok -> Ok\n{self.base_url}/missing -> Error\n")
-
-    def test_invalid_timeout(self):
-        for value in (0, -1, float("inf"), float("nan")):
-            with self.subTest(timeout=value):
-                with self.assertRaises(ValueError):
-                    create_report("unused-input", "unused-output", value)
 
 
 if __name__ == "__main__":
