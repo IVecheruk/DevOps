@@ -7,3 +7,4 @@ __pycache__/
 .env.*
 *.log
 !labs/lab-2.1/examples/access.log
+/labs/lab-2.4/hashes.json
