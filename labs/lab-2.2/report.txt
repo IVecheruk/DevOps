@@ -1,0 +1,3 @@
+https://example.com -> Ok
+https://www.python.org -> Ok
+https://example.invalid -> Error
